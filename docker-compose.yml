@@ -3,7 +3,8 @@ version: '3.9'
 services:
   django:
     build:
-      context: ./Dockerfiles/Backend
+      context: .
+      dockerfile: ./Dockerfiles/Backend/Dockerfile
     container_name: django
     volumes:
       - .:/usr/src/app
@@ -58,7 +59,8 @@ services:
     stdin_open: true
   celery:
     build:
-      context: ./Dockerfiles/Celery
+      context: .
+      dockerfile: ./Dockerfiles/Celery/Dockerfile
     depends_on:
       - redis
     container_name: celery

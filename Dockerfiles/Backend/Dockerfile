@@ -12,4 +12,4 @@ RUN chmod +x /entrypoint.sh
 
 COPY ./backend ./
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
