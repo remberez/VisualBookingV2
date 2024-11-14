@@ -1,21 +1,15 @@
 <script>
   import Card from "./card.svelte";
   import axios from "axios";
+  import { onMount } from 'svelte';
 
   let activeButton = null;
   let cards = []; 
-  let filteredCards = [];
+  let filteredCards = []
+  let objectTypes = []; 
+  let groupedCards = {}; // Объект для хранения карточек, сгруппированных по типам
 
-  // Категории и их идентификаторы
-  const categories = {
-    GUEST_HOUSES: 1,
-    PRIVATE_SECTOR: 2,
-    RECREATION_BASES: 3,
-    APARTMENTS: 4
-  };
-
-  // Устанавливаем активную категорию по умолчанию
-  activeButton = categories.GUEST_HOUSES;
+  activeButton = 1; // По умолчанию выбираем первую категорию
 
   function setActive(buttonNumber) {
     if (activeButton !== buttonNumber) {
@@ -27,8 +21,6 @@
   async function fetchObjects() {
     try {
       const response = await axios.get('http://localhost:8000/api/objects/');
-
-      console.log(response.data);
       cards = response.data.map((object) => ({
         city: object.address.city, 
         street: object.address.street, 
@@ -36,65 +28,89 @@
         seaDistance: object.address.sea_distance, 
         nameObject: object.name, 
         minPrice: object.min_price, 
-        type: object.type, 
+        type: Array.isArray(object.type) ? object.type.map(type => type.id) : [object.type.id], // Убедитесь, что это массив
         images: object.images.length > 0 ? object.images[0].media : null, 
         tags: object.tags.map(tag => tag.title) 
       }));
-
-      console.log(cards);
-      filterCardsByCategory(activeButton);
+      groupCardsByType(); // Группируем карточки по типам
+      fetchObjectTypes(); // Загружаем типы объектов
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
     }
   }
 
-  function filterCardsByCategory(categoryId) {
-    if (categoryId) {
-      filteredCards = cards.filter(card => card.type.id === categoryId);
-    } else {
-      filteredCards = cards;
+  async function fetchObjectTypes() {
+    try {
+      const response = await axios.get('http://localhost:8000/api/types-of-objects/');
+      objectTypes = response.data;
+    } catch (error) {
+      console.error("Ошибка при получении типов объектов:", error.response);
     }
   }
 
-  fetchObjects();
+  function filterCardsByCategory(categoryId) {
+    // Фильтрация карточек по категории
+    if (categoryId) {
+      filteredCards = cards.filter(card => Array.isArray(card.type) && card.type.includes(categoryId)); 
+    } else {
+      filteredCards = cards;
+    }
+    console.log('Filtered Cards:', filteredCards); // Логируем отфильтрованные карточки
+  }
+
+  function groupCardsByType() {
+    // Группируем карточки по типам
+    groupedCards = {};
+    cards.forEach(card => {
+      card.type.forEach(typeId => {
+        if (!groupedCards[typeId]) {
+          groupedCards[typeId] = [];
+        }
+        groupedCards[typeId].push(card);
+      });
+    });
+  }
+
+  onMount(() => {
+    fetchObjects(); 
+  });
 </script>
 
 <main>
   <h1 class="animate__animated wow animate__fadeInDown">Объекты с лучшим рейтингом</h1>
   
   <section class="animate__animated wow animate__fadeInDown">
-    <button class={activeButton === categories.GUEST_HOUSES ? 'active' : ''} on:click={() => setActive(categories.GUEST_HOUSES)} id="b1">
-      Гостевые дома
-    </button>
-
-    <button class={activeButton === categories.PRIVATE_SECTOR ? 'active' : ''} on:click={() => setActive(categories.PRIVATE_SECTOR)} id="b2">
-      Частный сектор
-    </button>
-
-    <button class={activeButton === categories.RECREATION_BASES ? 'active' : ''} on:click={() => setActive(categories.RECREATION_BASES)} id="b3">
-      Базы отдыха
-    </button>
-
-    <button class={activeButton === categories.APARTMENTS ? 'active' : ''} on:click={() => setActive(categories.APARTMENTS)} id="b4">
-      Квартиры посуточно
-    </button>
+    {#each objectTypes as type}
+      <button 
+        class={activeButton === type.id ? 'active' : ''} 
+        on:click={() => setActive(type.id)} 
+        id={`b${type.id}`}>
+        {type.name}
+      </button>
+    {/each}
   </section>
   
-  <nav>
-    {#each filteredCards as card}
-      <Card 
-        city={card.city} 
-        distans={card.seaDistance}
-        nameObject={card.nameObject} 
-        sale={card.minPrice}
-        hrefs={card.images} 
-        tegs={card.tags} 
-      />
-    {/each}
-  </nav>
+  {#each objectTypes as type}
+    {#if groupedCards[type.id] && groupedCards[type.id].length > 0}
+      <h2 class="animate__animated wow animate__fadeInUp">{type.name}</h2>
+      <nav>
+        {#each groupedCards[type.id] as card}
+          <Card 
+            city={card.city} 
+            distans={card.seaDistance}
+            nameObject={card.nameObject} 
+            sale={card.minPrice}
+            hrefs={card.images} 
+            tegs={card.tags} 
+            type={card.type}
+          />
+        {/each}
+      </nav>
+    {/if}
+  {/each}
 
   <div class="block animate__animated wow animate__fadeInUp">
-    <a id="more-variants" href="">Смотреть еще 120 вариантов</a>
+    <a id="more-variants" href="">Смотреть еще {cards.length} вариантов</a>
   </div>
   <br><br>
 </main>

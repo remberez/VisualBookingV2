@@ -3,11 +3,11 @@
     import { navigate } from 'svelte-routing';
     import axios from 'axios';
 
-    let checkInDate = new Date().toISOString().split('T')[0];  // Устанавливаем дату заезда на сегодня
-    let checkOutDate = new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0];  // Устанавливаем дату выезда на 7 дней позже
-    let city = '';
-    let adults = '';
-    let availableCities = ["Саратов"]; // Массив для хранения городов
+    export let checkInDate = new Date().toISOString().split('T')[0];  // Устанавливаем дату заезда на сегодня
+    export let checkOutDate = new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0];  // Устанавливаем дату выезда на 7 дней позже
+    export let city = '';
+    export let adults = '';
+    let availableCities = []; // Массив для хранения городов
 
     async function goToAboutPage(params) {
         navigate(`/search?${params}`);

@@ -4,6 +4,7 @@
     import Footer from "../Main/footer.svelte";
     import Cookies from 'js-cookie';
     import { navigate } from 'svelte-routing';
+    import axios from "axios";
 
     import Companion from './companion.svelte';
     import AddCompanion from './addCompanion.svelte';
@@ -12,8 +13,11 @@
     let userInfo;
     let showUserInfo = false;
     const info = JSON.parse(Cookies.get('info') || '{}');
-    let { surname, name, email, phone, position } = info;
+    let { surname, name, email, phone, position, id} = info;
     let gender = 'Мужчина';
+
+    let filteredApartments
+    console.log(id)
 
     const toggleUserInfo = () => {
         showUserInfo = !showUserInfo;
@@ -21,6 +25,10 @@
             userInfo.style.display = showUserInfo ? 'block' : 'none';
         }
     };
+
+    async function getFavorites(){
+        const response = await axios.get(``)
+    }
 
     const handleResize = () => {
         if (userInfo) { 
@@ -161,7 +169,6 @@
                         <div>
                             "Избранное"
                         
-                            <!--<Object/>-->
                         </div>
                     {:else if activeTab === 'reviews'}
                         <div>"Мои отзывы"</div>

@@ -5,7 +5,8 @@
     export let distans = 32;
     export let hrefs = "https://cache3.youla.io/files/images/780_780/5a/f3/5af3c7c9f8efdc8b0e3020b9.jpg";
     export let sale = 1904;
-    export let tegs = []; // Изменили на массив
+    export let tegs = [];
+    export let type = []
     
     let distansString = "м";
     if (distans > 999){
@@ -34,14 +35,10 @@
   </main>
 
 <style>
-    main{
-        box-shadow: 0 0 3px red;
-    }
 
     .block{
-        box-shadow: 0 0 3px red;
-        width: 278px;
-        height: 167px;
+        width: 300px;
+        height: 200px;
         top: 1391px;
         left: 348px;
         gap: 0px;
@@ -57,6 +54,11 @@
         align-items: center;
         gap: 10px;
         margin-top: 10px;
+        padding-left: 10px;
+    }
+
+    p{
+        padding: 0 10px 0 10px;
     }
 
     .tag{
@@ -104,11 +106,15 @@
     main{
         display: flex;
         justify-content: center;
+        border-radius: 10px;
+        border: 2px rgba(128, 128, 128, 0.281) solid;
+        padding-bottom: 10px;
     }
 
     img{
         height: 100%;
         width: 100%;
+        border-radius: 10px 10px 0px 0;
         object-fit: cover;
     }
 
